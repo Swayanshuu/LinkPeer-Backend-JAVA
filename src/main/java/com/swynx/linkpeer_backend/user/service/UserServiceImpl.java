@@ -1,5 +1,7 @@
 package com.swynx.linkpeer_backend.user.service;
 
+import com.swynx.linkpeer_backend.common.exception.ResourceNotFoundException;
+
 import com.swynx.linkpeer_backend.user.entity.User;
 import com.swynx.linkpeer_backend.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -15,8 +17,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<User> getUserById(String id) {
-        return userRepository.findById(id);
+    public User getUserById(String id) {
+        return userRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User not found!"));
     }
 
     @Override

@@ -1,6 +1,8 @@
 package com.swynx.linkpeer_backend.user.controller;
 
+import com.swynx.linkpeer_backend.user.dto.response.UserResponse;
 import com.swynx.linkpeer_backend.user.entity.User;
+import com.swynx.linkpeer_backend.user.mapper.UserMapper;
 import com.swynx.linkpeer_backend.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -12,15 +14,20 @@ import java.util.Optional;
 @RequestMapping("/users")
 public class UserController {
     private final UserService userService;
+    private final UserMapper userMapper;
+
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, UserMapper userMapper) {
         this.userService = userService;
+        this.userMapper = userMapper;
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable String id) {
-        Optional<User> user = userService.getUserById(id);
+    public ResponseEntity<UserResponse> getUserById(@PathVariable String id) {
+        User user = userService.getUserById(id);
 
-        return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        return ResponseEntity.ok(userMapper.toResponse(user));
+
     }
+
 }

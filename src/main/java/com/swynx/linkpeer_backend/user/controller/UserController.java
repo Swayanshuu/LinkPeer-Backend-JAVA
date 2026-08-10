@@ -1,5 +1,6 @@
 package com.swynx.linkpeer_backend.user.controller;
 
+import com.swynx.linkpeer_backend.common.exception.ResourceNotFoundException;
 import com.swynx.linkpeer_backend.user.dto.request.UserUpdateRequest;
 import com.swynx.linkpeer_backend.user.dto.response.UserResponse;
 import com.swynx.linkpeer_backend.user.dto.response.UserUpdateResponse;
@@ -43,5 +44,19 @@ public class UserController {
         return ResponseEntity.ok(
                 userMapper.toUpdateResponse(updatedUser)
         );
+    }
+
+    @GetMapping("/email/{email}")
+    public ResponseEntity<UserResponse> getUserByEmail(@PathVariable String email) {
+        User user = userService.getUserByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User not found!"));
+
+        return ResponseEntity.ok(userMapper.toResponse(user));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<UserResponse> deleteUser(@PathVariable String id) {
+        userService.deleteUser(id);
+
+        return ResponseEntity.noContent().build();
     }
 }

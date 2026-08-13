@@ -3,6 +3,7 @@ package com.swynx.linkpeer_backend.auth.config;
 import com.swynx.linkpeer_backend.auth.filter.FirebaseAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -33,7 +34,9 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/users/me").authenticated() // must be authenticated to see this route
+                        .requestMatchers(HttpMethod.POST, "/users").authenticated()
                         .requestMatchers("/users/**").permitAll() // for now permitting all
+                        .requestMatchers(HttpMethod.GET, "/posts/**").permitAll()
                         .anyRequest().permitAll()
                 )
                 .addFilterBefore(

@@ -1,6 +1,8 @@
 package com.swynx.linkpeer_backend.common.exception;
 
 import com.swynx.linkpeer_backend.common.response.ErrorResponse;
+import com.swynx.linkpeer_backend.user.exception.ForbiddenException;
+import com.swynx.linkpeer_backend.user.exception.UnauthorizedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -12,6 +14,7 @@ import java.time.LocalDateTime;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    // Resource not found Exception handler 404
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleReourceNotFound(ResourceNotFoundException exception) {
 
@@ -25,6 +28,7 @@ public class GlobalExceptionHandler {
                 .body(errorResponse);
     }
 
+    // Not valid Exception handler 400
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException exception) {
         String message = exception
@@ -46,6 +50,7 @@ public class GlobalExceptionHandler {
                 .body(errorResponse);
     }
 
+    // Generic Exception handler
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericExceptions(Exception exception) {
         ErrorResponse errorResponse = new ErrorResponse(
@@ -56,6 +61,35 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(errorResponse);
+    }
+
+    // Unauthorized Exception handler 401
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ErrorResponse> handleUnauthorized(Exception exception) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.UNAUTHORIZED.value(),
+                exception.getMessage(),
+                LocalDateTime.now()
+        );
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(errorResponse);
+    }
+
+    // Forbidden Exception handler 403
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<ErrorResponse> handleForbidden(
+            ForbiddenException exception) {
+
+        ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.FORBIDDEN.value(),
+                exception.getMessage(),
+                LocalDateTime.now()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
                 .body(errorResponse);
     }
 }

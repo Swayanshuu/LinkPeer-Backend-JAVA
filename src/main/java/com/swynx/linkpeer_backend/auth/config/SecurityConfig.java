@@ -32,7 +32,8 @@ public class SecurityConfig {
                         )
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/users/**").permitAll()
+                        .requestMatchers("/users/me").authenticated() // must be authenticated to see this route
+                        .requestMatchers("/users/**").permitAll() // for now permitting all
                         .anyRequest().permitAll()
                 )
                 .addFilterBefore(

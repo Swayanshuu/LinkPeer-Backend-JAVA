@@ -1,18 +1,20 @@
 package com.swynx.linkpeer_backend.user.controller;
 
+import com.google.firebase.auth.FirebaseToken;
 import com.swynx.linkpeer_backend.common.exception.ResourceNotFoundException;
 import com.swynx.linkpeer_backend.user.dto.request.UserUpdateRequest;
 import com.swynx.linkpeer_backend.user.dto.response.UserResponse;
 import com.swynx.linkpeer_backend.user.dto.response.UserUpdateResponse;
 import com.swynx.linkpeer_backend.user.entity.User;
+import com.swynx.linkpeer_backend.user.exception.ForbiddenException;
+import com.swynx.linkpeer_backend.user.exception.UnauthorizedException;
 import com.swynx.linkpeer_backend.user.mapper.UserMapper;
 import com.swynx.linkpeer_backend.user.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/users")
@@ -37,7 +39,19 @@ public class UserController {
     @PutMapping("/{id}")
     public ResponseEntity<UserUpdateResponse> updateUser(
             @PathVariable String id,
-            @Valid @RequestBody UserUpdateRequest request) {
+            @Valid @RequestBody UserUpdateRequest request,
+            HttpServletRequest httpRequest) throws ForbiddenException {
+        FirebaseToken firebaseUser =
+                (FirebaseToken) httpRequest.getAttribute("firebaseUser");
+
+        if (firebaseUser == null) {
+            throw new UnauthorizedException("Authentication required");
+        }
+
+        if (!firebaseUser.getUid().equals(id)) {
+            throw new ForbiddenException("You cannot update another user's profile");
+        }
+
 
         User updatedUser = userService.updateUser(id, request);
 
@@ -58,5 +72,19 @@ public class UserController {
         userService.deleteUser(id);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<UserResponse> getCurrentUser(HttpServletRequest request) {
+        FirebaseToken firebaseUser = (FirebaseToken) request.getAttribute("firebaseUser");
+
+        if (firebaseUser == null) {
+            throw new ResourceNotFoundException("Authentication required!");
+        }
+
+        String uid = firebaseUser.getUid();
+        User user = userService.getUserById(uid);
+
+        return ResponseEntity.ok(userMapper.toResponse(user));
     }
 }

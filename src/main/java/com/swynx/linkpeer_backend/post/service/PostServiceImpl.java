@@ -5,6 +5,8 @@ import com.swynx.linkpeer_backend.post.entity.Post;
 import com.swynx.linkpeer_backend.post.repository.PostRepository;
 import com.swynx.linkpeer_backend.user.entity.User;
 import com.swynx.linkpeer_backend.user.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -43,8 +45,8 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public List<Post> getAllPosts() {
-        return postRepository.findAll();
+    public Page<Post> getAllPosts(Pageable pageable) {
+        return postRepository.findAll(pageable);
     }
 
 

@@ -1,6 +1,7 @@
 package com.swynx.linkpeer_backend.common.exception;
 
 import com.swynx.linkpeer_backend.common.response.ErrorResponse;
+import com.swynx.linkpeer_backend.post.exception.InvalidPaginationException;
 import com.swynx.linkpeer_backend.user.exception.ForbiddenException;
 import com.swynx.linkpeer_backend.user.exception.UnauthorizedException;
 import org.springframework.http.HttpStatus;
@@ -90,6 +91,22 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
+                .body(errorResponse);
+    }
+
+    // Pagination exception
+    @ExceptionHandler(InvalidPaginationException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidPagination(
+            InvalidPaginationException exception) {
+
+        ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                exception.getMessage(),
+                LocalDateTime.now()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
                 .body(errorResponse);
     }
 }

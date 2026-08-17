@@ -107,23 +107,17 @@ public class PostController {
         FirebaseToken firebaseUser =
                 (FirebaseToken) httpRequest.getAttribute("firebaseUser");
 
-        if (firebaseUser == null) {
-            return ResponseEntity.ok(
-                    postMapper.toResponse(post)
-            );
-        }
+        if (firebaseUser != null &&
+                firebaseUser.getUid().equals(post.getUserId())) {
 
-        String userId = firebaseUser.getUid();
-
-        if (userId == null || !userId.equals(post.getUserId())) {
-            return ResponseEntity.ok(
-                    postMapper.toResponse(post)
-            );
-        } else {
             return ResponseEntity.ok(
                     postMapper.toSelfResponse(post)
             );
         }
+
+        return ResponseEntity.ok(
+                postMapper.toResponse(post)
+        );
 
     }
 }

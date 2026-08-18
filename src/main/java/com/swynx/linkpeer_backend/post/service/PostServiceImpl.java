@@ -1,6 +1,7 @@
 package com.swynx.linkpeer_backend.post.service;
 
 import com.swynx.linkpeer_backend.common.exception.ResourceNotFoundException;
+import com.swynx.linkpeer_backend.post.dto.request.PostUpdateRequest;
 import com.swynx.linkpeer_backend.post.entity.Post;
 import com.swynx.linkpeer_backend.post.repository.PostRepository;
 import com.swynx.linkpeer_backend.user.entity.User;
@@ -9,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -47,6 +49,28 @@ public class PostServiceImpl implements PostService {
     @Override
     public Page<Post> getAllPosts(Pageable pageable) {
         return postRepository.findAll(pageable);
+    }
+
+    @Override
+    public Post updatePost(String userId, Long id, PostUpdateRequest request) {
+        Post post = postRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("post not found"));
+
+        if(!post.getUserId().equals(userId)){
+            throw new ResourceNotFoundException("You can't update this post!");
+        }
+
+        post.setTitle(request.getTitle());
+        post.setContent(request.getContent());
+        post.setLink(request.getLink());
+        post.setImageUrl(request.getImageUrl());
+        post.setFileUrl(request.getFileUrl());
+        post.setFileName(request.getFileName());
+        post.setFileType(request.getFileType());
+        post.setImageUrls(request.getImageUrls());
+
+        post.setUpdatedAt(LocalDateTime.now());
+
+        return postRepository.save(post);
     }
 
 

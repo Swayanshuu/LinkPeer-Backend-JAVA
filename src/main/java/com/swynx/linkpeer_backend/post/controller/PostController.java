@@ -2,8 +2,10 @@ package com.swynx.linkpeer_backend.post.controller;
 
 import com.google.firebase.auth.FirebaseToken;
 import com.swynx.linkpeer_backend.post.dto.request.PostCreateRequest;
+import com.swynx.linkpeer_backend.post.dto.request.PostUpdateRequest;
 import com.swynx.linkpeer_backend.post.dto.response.PostPageResponse;
 import com.swynx.linkpeer_backend.post.dto.response.PostResponse;
+import com.swynx.linkpeer_backend.post.dto.response.SelfPostResponse;
 import com.swynx.linkpeer_backend.post.entity.Post;
 import com.swynx.linkpeer_backend.post.exception.InvalidPaginationException;
 import com.swynx.linkpeer_backend.post.mapper.PostMapper;
@@ -119,5 +121,21 @@ public class PostController {
                 postMapper.toResponse(post)
         );
 
+    }
+
+    // EDIT POST
+    @PutMapping("/{id}")
+    public ResponseEntity<SelfPostResponse> updatePost(@PathVariable Long id, @Valid @RequestBody PostUpdateRequest request, HttpServletRequest httpRequest) {
+        FirebaseToken firebaseUser =
+                (FirebaseToken) httpRequest.getAttribute("firebaseUser");
+        if (firebaseUser == null) {
+            throw new UnauthorizedException("Authentication required");
+
+        }
+        String userId = firebaseUser.getUid();
+
+        Post updatePost = postService.updatePost(userId, id, request);
+
+        return ResponseEntity.ok(postMapper.toSelfResponse(updatePost));
     }
 }

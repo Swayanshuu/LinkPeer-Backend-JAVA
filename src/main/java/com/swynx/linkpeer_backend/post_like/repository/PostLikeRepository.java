@@ -11,4 +11,7 @@ public interface PostLikeRepository extends JpaRepository<PostLike, PostLikeId> 
 
     // Delete the like of a specific user from a specific post
     void deleteByPostIdAndUserId(Long postId, String userId);
+
+    // count total likes on a specific post
+    long countByPostId(Long postId);
 }

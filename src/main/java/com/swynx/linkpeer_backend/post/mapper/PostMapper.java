@@ -1,15 +1,23 @@
 package com.swynx.linkpeer_backend.post.mapper;
 
+import com.swynx.linkpeer_backend.auth.service.FirebaseAuthService;
 import com.swynx.linkpeer_backend.post.dto.request.PostCreateRequest;
 import com.swynx.linkpeer_backend.post.dto.response.PostResponse;
 import com.swynx.linkpeer_backend.post.dto.response.SelfPostResponse;
 import com.swynx.linkpeer_backend.post.entity.Post;
+import com.swynx.linkpeer_backend.post_like.repository.PostLikeRepository;
 import org.springframework.stereotype.Component;
 
 @Component
 public class PostMapper {
 
-    public PostResponse toResponse(Post post) {
+    private final PostLikeRepository postLikeRepository;
+
+    public PostMapper(PostLikeRepository postLikeRepository) {
+        this.postLikeRepository = postLikeRepository;
+    }
+
+    public PostResponse toResponse(Post post, String currentUserId) {
 
         PostResponse response = new PostResponse();
 
@@ -26,10 +34,24 @@ public class PostMapper {
         response.setBranch(post.getBranch());
         response.setImageUrls(post.getImageUrls());
 
+        // Count total likes for this post
+        long likeCount = postLikeRepository.countByPostId(post.getId());
+
+        // Add the count to the response
+        response.setLikeCount(likeCount);
+
+        boolean isLiked = false;
+
+        // If a user is logged in, check whether THEY liked this post
+        if (currentUserId != null) {
+
+            isLiked = postLikeRepository.existsByPostIdAndUserId(post.getId(), currentUserId);
+        }
+
         return response;
     }
 
-    public SelfPostResponse toSelfResponse(Post post) {
+    public SelfPostResponse toSelfResponse(Post post, String currentUserId) {
 
         SelfPostResponse response = new SelfPostResponse();
 
@@ -52,6 +74,20 @@ public class PostMapper {
         response.setBranch(post.getBranch());
         response.setDesignation(post.getDesignation());
         response.setImageUrls(post.getImageUrls());
+
+        // Count total likes for this post
+        long likeCount = postLikeRepository.countByPostId(post.getId());
+
+        // By default, the current user has not liked the post
+        boolean isLiked = false;
+
+        // If a user is logged in, check whether THEY liked this post
+        if (currentUserId != null) {
+
+            isLiked = postLikeRepository.existsByPostIdAndUserId(post.getId(), currentUserId);
+        }
+
+        response.setLikedByCurrentUser(isLiked);
 
         return response;
     }

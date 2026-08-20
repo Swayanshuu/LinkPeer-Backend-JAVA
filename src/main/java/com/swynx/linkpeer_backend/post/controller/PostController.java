@@ -29,21 +29,16 @@ public class PostController {
     private final PostService postService;
     private final PostMapper postMapper;
 
-    public PostController(
-            PostService postService,
-            PostMapper postMapper) {
+    public PostController(PostService postService, PostMapper postMapper) {
 
         this.postService = postService;
         this.postMapper = postMapper;
     }
 
     @PostMapping
-    public ResponseEntity<PostResponse> createPost(
-            @Valid @RequestBody PostCreateRequest request,
-            HttpServletRequest httpRequest) {
+    public ResponseEntity<PostResponse> createPost(@Valid @RequestBody PostCreateRequest request, HttpServletRequest httpRequest) {
 
-        FirebaseToken firebaseUser =
-                (FirebaseToken) httpRequest.getAttribute("firebaseUser");
+        FirebaseToken firebaseUser = (FirebaseToken) httpRequest.getAttribute("firebaseUser");
 
         if (firebaseUser == null) {
             throw new UnauthorizedException("Authentication required");
@@ -55,79 +50,71 @@ public class PostController {
 
         Post createdPost = postService.createPost(userId, post);
 
-        return ResponseEntity.ok(
-                postMapper.toResponse(createdPost)
-        );
+        return ResponseEntity.ok(postMapper.toResponse(createdPost, userId));
     }
 
 
     // get all post
     @GetMapping
-    public ResponseEntity<PostPageResponse> getAllPosts(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "2") int size) {
+    public ResponseEntity<PostPageResponse> getAllPosts(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "2") int size, HttpServletRequest httpRequest) {
 
-        // adding limit
-
-        // page can't be negative
+        // Page can't be negative
         if (page < 0) {
             throw new InvalidPaginationException("Page can't be negative");
         }
 
-        // and a page can't content more than 10 posts
+        // A page can't contain more than 10 posts
         if (size < 1 || size > 10) {
             throw new InvalidPaginationException("Size must be between 1 and 10");
         }
 
-        // by default it will sort by created at in desc order
+        // Get Firebase user if the request contains a valid token
+        FirebaseToken firebaseUser = (FirebaseToken) httpRequest.getAttribute("firebaseUser");
+
+        // For unauthenticated users, currentUserId will remain null
+        String currentUserId;
+
+        if (firebaseUser != null) {
+            currentUserId = firebaseUser.getUid();
+        } else {
+            currentUserId = null;
+        }
+
+        // Sort posts by newest first
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
 
-        // added pagination
+        // Get paginated posts
         Page<Post> posts = postService.getAllPosts(pageable);
 
-        List<PostResponse> responses = posts.stream()
-                .map(postMapper::toResponse)
-                .toList();
+        // Pass currentUserId to the mapper
+        List<PostResponse> responses = posts.stream().map(post -> postMapper.toResponse(post, currentUserId)).toList();
 
-        PostPageResponse response = new PostPageResponse(
-                responses,
-                posts.getNumber(),
-                posts.getSize(),
-                posts.getTotalPages(),
-                posts.getTotalElements(),
-                posts.hasNext()
-        );
+        PostPageResponse response = new PostPageResponse(responses, posts.getNumber(), posts.getSize(), posts.getTotalPages(), posts.getTotalElements(), posts.hasNext());
 
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
     // here we use '?' instead of PostResponse/SelfPostResponse because we want diff responses according to who is requesting it
-    public ResponseEntity<?> getPostById(
-            @PathVariable Long id, HttpServletRequest httpRequest) {
+    public ResponseEntity<?> getPostById(@PathVariable Long id, HttpServletRequest httpRequest) {
 
         Post post = postService.getPostById(id);
 
-        FirebaseToken firebaseUser =
-                (FirebaseToken) httpRequest.getAttribute("firebaseUser");
+        FirebaseToken firebaseUser = (FirebaseToken) httpRequest.getAttribute("firebaseUser");
 
-        if (firebaseUser != null &&
-                firebaseUser.getUid().equals(post.getUserId())) {
+        if (firebaseUser != null && firebaseUser.getUid().equals(post.getUserId())) {
 
-            return ResponseEntity.ok(
-                    postMapper.toSelfResponse(post)
-            );
+            return ResponseEntity.ok(postMapper.toSelfResponse(post, firebaseUser.getUid()));
         }
 
-        return ResponseEntity.ok(
-                postMapper.toResponse(post)
-        );
+        return ResponseEntity.ok(postMapper.toResponse(post, firebaseUser.getUid()));
 
     }
 
     // EDIT POST
     @PutMapping("/{id}")
     public ResponseEntity<SelfPostResponse> updatePost(@PathVariable Long id, @Valid @RequestBody PostUpdateRequest request, HttpServletRequest httpRequest) {
-        FirebaseToken firebaseUser =
-                (FirebaseToken) httpRequest.getAttribute("firebaseUser");
+        FirebaseToken firebaseUser = (FirebaseToken) httpRequest.getAttribute("firebaseUser");
         if (firebaseUser == null) {
             throw new UnauthorizedException("Authentication required");
 
@@ -136,14 +123,13 @@ public class PostController {
 
         Post updatePost = postService.updatePost(userId, id, request);
 
-        return ResponseEntity.ok(postMapper.toSelfResponse(updatePost));
+        return ResponseEntity.ok(postMapper.toSelfResponse(updatePost, userId));
     }
 
     // DELETE POST
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deletePost(@PathVariable Long id, HttpServletRequest httpRequest) {
-        FirebaseToken firebaseUser =
-                (FirebaseToken) httpRequest.getAttribute("firebaseUser");
+        FirebaseToken firebaseUser = (FirebaseToken) httpRequest.getAttribute("firebaseUser");
 
         if (firebaseUser == null) {
             throw new UnauthorizedException("Authentication required");

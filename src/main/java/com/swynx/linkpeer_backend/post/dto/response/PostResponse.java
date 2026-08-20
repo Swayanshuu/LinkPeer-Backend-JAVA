@@ -22,4 +22,7 @@ public class PostResponse {
     private LocalDateTime updatedAt;
     private String branch;
     private List<String> imageUrls;
+
+    private long likeCount;
+    private boolean likedByCurrentUser;
 }

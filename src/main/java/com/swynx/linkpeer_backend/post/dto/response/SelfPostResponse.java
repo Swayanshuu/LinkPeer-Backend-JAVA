@@ -29,4 +29,7 @@ public class SelfPostResponse {
     private String branch;
     private String designation;
     private List<String> imageUrls;
+
+    private long likeCount;
+    private boolean likedByCurrentUser;
 }

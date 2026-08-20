@@ -5,7 +5,9 @@ import com.swynx.linkpeer_backend.post.entity.Post;
 import com.swynx.linkpeer_backend.post.repository.PostRepository;
 import com.swynx.linkpeer_backend.post_like.entity.PostLike;
 import com.swynx.linkpeer_backend.post_like.repository.PostLikeRepository;
+import org.springframework.stereotype.Service;
 
+@Service
 public class PostLikeServiceImpl implements PostLikeService {
 
     private final PostLikeRepository postLikeRepository;

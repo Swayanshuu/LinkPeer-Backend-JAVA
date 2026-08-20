@@ -16,4 +16,6 @@ public interface PostService {
 
     Post updatePost(String userId, Long id, PostUpdateRequest request);
 
+    void deletePost(String userId, Long id);
+
 }

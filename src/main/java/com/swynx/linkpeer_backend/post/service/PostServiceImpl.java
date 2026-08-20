@@ -5,6 +5,7 @@ import com.swynx.linkpeer_backend.post.dto.request.PostUpdateRequest;
 import com.swynx.linkpeer_backend.post.entity.Post;
 import com.swynx.linkpeer_backend.post.repository.PostRepository;
 import com.swynx.linkpeer_backend.user.entity.User;
+import com.swynx.linkpeer_backend.user.exception.ForbiddenException;
 import com.swynx.linkpeer_backend.user.repository.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -71,6 +72,16 @@ public class PostServiceImpl implements PostService {
         post.setUpdatedAt(LocalDateTime.now());
 
         return postRepository.save(post);
+    }
+
+    @Override
+    public void deletePost(String userId, Long id) {
+        Post post  = postRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("post not found"));
+        if(!post.getUserId().equals(userId)){
+            throw new ForbiddenException("You can't delete this post!");
+        }
+
+        postRepository.delete(post);
     }
 
 

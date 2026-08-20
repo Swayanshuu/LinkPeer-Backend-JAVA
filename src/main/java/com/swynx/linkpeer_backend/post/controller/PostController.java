@@ -138,4 +138,21 @@ public class PostController {
 
         return ResponseEntity.ok(postMapper.toSelfResponse(updatePost));
     }
+
+    // DELETE POST
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deletePost(@PathVariable Long id, HttpServletRequest httpRequest) {
+        FirebaseToken firebaseUser =
+                (FirebaseToken) httpRequest.getAttribute("firebaseUser");
+
+        if (firebaseUser == null) {
+            throw new UnauthorizedException("Authentication required");
+        }
+
+        String userId = firebaseUser.getUid();
+
+        postService.deletePost(userId, id);
+
+        return ResponseEntity.ok().build();
+    }
 }

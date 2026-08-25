@@ -47,7 +47,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public List<Comment> getCommetsByPostId(Long postId) {
+    public List<Comment> getCommentsByPostId(Long postId) {
         // Check whether the post exists
         postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post not found"));
 

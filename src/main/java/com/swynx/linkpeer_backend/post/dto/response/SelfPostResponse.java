@@ -32,4 +32,6 @@ public class SelfPostResponse {
 
     private long likeCount;
     private boolean likedByCurrentUser;
+
+    private long commentCount;
 }

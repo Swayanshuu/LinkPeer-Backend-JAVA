@@ -56,7 +56,7 @@ public class PostController {
 
     // get all post
     @GetMapping
-    public ResponseEntity<PostPageResponse> getAllPosts(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "2") int size, HttpServletRequest httpRequest) {
+    public ResponseEntity<PostPageResponse> getAllPosts(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "6") int size, HttpServletRequest httpRequest) {
 
         // Page can't be negative
         if (page < 0) {

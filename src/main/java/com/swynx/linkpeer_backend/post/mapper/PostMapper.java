@@ -1,6 +1,7 @@
 package com.swynx.linkpeer_backend.post.mapper;
 
 import com.swynx.linkpeer_backend.auth.service.FirebaseAuthService;
+import com.swynx.linkpeer_backend.comment.repository.CommentRepository;
 import com.swynx.linkpeer_backend.post.dto.request.PostCreateRequest;
 import com.swynx.linkpeer_backend.post.dto.response.PostResponse;
 import com.swynx.linkpeer_backend.post.dto.response.SelfPostResponse;
@@ -12,9 +13,11 @@ import org.springframework.stereotype.Component;
 public class PostMapper {
 
     private final PostLikeRepository postLikeRepository;
+    private final CommentRepository commentRepository;
 
-    public PostMapper(PostLikeRepository postLikeRepository) {
+    public PostMapper(PostLikeRepository postLikeRepository, CommentRepository commentRepository) {
         this.postLikeRepository = postLikeRepository;
+        this.commentRepository = commentRepository;
     }
 
     public PostResponse toResponse(Post post, String currentUserId) {
@@ -47,6 +50,11 @@ public class PostMapper {
 
             isLiked = postLikeRepository.existsByPostIdAndUserId(post.getId(), currentUserId);
         }
+
+        // count total comments
+        long commentCount=commentRepository.countByPostId(post.getId());
+        // add comment count to response
+        response.setCommentCount(commentCount);
 
         return response;
     }
@@ -88,6 +96,11 @@ public class PostMapper {
         }
 
         response.setLikedByCurrentUser(isLiked);
+
+        // count total comments
+        long commentCount=commentRepository.countByPostId(post.getId());
+        // add comment count to response
+        response.setCommentCount(commentCount);
 
         return response;
     }

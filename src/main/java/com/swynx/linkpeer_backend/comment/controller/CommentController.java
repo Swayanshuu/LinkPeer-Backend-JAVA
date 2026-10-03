@@ -1,6 +1,7 @@
 package com.swynx.linkpeer_backend.comment.controller;
 
 import com.google.firebase.auth.FirebaseToken;
+import com.swynx.linkpeer_backend.comment.dto.response.CommentLikeStatusResponse;
 import com.swynx.linkpeer_backend.comment.dto.response.CommentResponse;
 import com.swynx.linkpeer_backend.comment.mapper.CommentMapper;
 import com.swynx.linkpeer_backend.comment.service.CommentService;
@@ -55,23 +56,34 @@ public class CommentController {
 
         // Convert entity → response DTO
         return ResponseEntity.ok(
-                commentMapper.toResponse(createdComment)
+                commentMapper.toResponse(createdComment, userId)
         );
     }
 
     // GET COMMENT
     @GetMapping("/{postId}")
     public ResponseEntity<List<CommentResponse>> getCommentsByPostId(
-            @PathVariable Long postId
+            @PathVariable Long postId,
+            HttpServletRequest httpRequest
     ) {
+        // Get authenticated Firebase user from the request
+        FirebaseToken firebaseUser =
+                (FirebaseToken) httpRequest.getAttribute("firebaseUser");
 
+        // User must be authenticated to create a comment
+        if (firebaseUser == null) {
+            throw new UnauthorizedException("Authentication required");
+        }
+
+        // Get Firebase UID
+        String userId = firebaseUser.getUid();
         // Get all comments belonging to this post
         List<Comment> comments =
                 commentService.getCommentsByPostId(postId);
 
         // Convert every Comment entity → CommentResponse
         List<CommentResponse> responses = comments.stream()
-                .map(commentMapper::toResponse)
+                .map(comment -> commentMapper.toResponse(comment, userId))
                 .toList();
 
         return ResponseEntity.ok(responses);
@@ -111,7 +123,7 @@ public class CommentController {
 
         // Convert updated entity → response DTO
         return ResponseEntity.ok(
-                commentMapper.toResponse(updatedComment)
+                commentMapper.toResponse(updatedComment, userId)
         );
     }
 
@@ -139,5 +151,79 @@ public class CommentController {
 
         // Return 204 No Content
         return ResponseEntity.noContent().build();
+    }
+
+
+    // LIKE COMMENT
+    @PostMapping("/{commentId}/like")
+    public ResponseEntity<List<CommentResponse>> likeComment(
+            @PathVariable Long CommentId,
+            HttpServletRequest httpRequest
+    ) {
+        FirebaseToken firebaseUser =
+                (FirebaseToken) httpRequest.getAttribute("firebaseUser");
+
+        if (firebaseUser == null) {
+            throw new UnauthorizedException("Authentication required");
+        }
+
+        String userId = firebaseUser.getUid();
+
+        commentService.likeComment(userId, CommentId);
+
+        return ResponseEntity.ok().build();
+    }
+
+    // UNLIKE COMMENT
+    @DeleteMapping("/{commentId}/like")
+    public ResponseEntity<Void> unlikeComment(
+            @PathVariable Long commentId,
+            HttpServletRequest httpRequest
+    ) {
+
+        // Get authenticated Firebase user
+        FirebaseToken firebaseUser =
+                (FirebaseToken) httpRequest.getAttribute("firebaseUser");
+
+        // User must be authenticated
+        if (firebaseUser == null) {
+            throw new UnauthorizedException("Authentication required");
+        }
+
+        // Get Firebase UID
+        String userId = firebaseUser.getUid();
+
+        // Unlike the comment
+        commentService.unlikeComment(userId, commentId);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    // GET COMMENT LIKE STATUS
+    @GetMapping("/{commentId}/like")
+    public ResponseEntity<CommentLikeStatusResponse> getCommentLikeStatus(
+            @PathVariable Long commentId,
+            HttpServletRequest httpRequest
+    ) {
+
+        // Get authenticated Firebase user
+        FirebaseToken firebaseUser =
+                (FirebaseToken) httpRequest.getAttribute("firebaseUser");
+
+        // User must be authenticated
+        if (firebaseUser == null) {
+            throw new UnauthorizedException("Authentication required");
+        }
+
+        // Get Firebase UID
+        String userId = firebaseUser.getUid();
+
+        // Check whether user liked this comment
+        boolean liked =
+                commentService.hasUserLikedTheComment(userId, commentId);
+
+        return ResponseEntity.ok(
+                new CommentLikeStatusResponse(liked)
+        );
     }
 }

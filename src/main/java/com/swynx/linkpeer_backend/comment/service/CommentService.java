@@ -17,4 +17,13 @@ public interface CommentService {
 
     // delete comment
     void deleteComment(String userId, Long commentId);
+
+    // like a comment
+    void likeComment(String userId, Long commentsId);
+
+    // unlike a comment
+    void unlikeComment(String userId, Long commentsId);
+
+    // check if a user liked the comment
+    boolean hasUserLikedTheComment(String userId, Long commentsId);
 }

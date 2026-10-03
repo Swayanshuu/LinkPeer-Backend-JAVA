@@ -16,22 +16,37 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(name = "post_id", nullable = false)
     private Long postId;
 
-    @Column(nullable = false)
+    @Column(name = "user_id", nullable = false)
     private String userId;
 
-    private String userName;
-    private String userPhoto;
-
-    @Column(nullable = false)
+    @Column(name = "comment_text", nullable = false)
     private String content;
 
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @PrePersist // Means Run this method automatically just before an existing entity is updated in the database.
+    // Comment likes
+    @Column(name = "likes_count")
+    private int likesCount;
+
+    @Column(name = "liked_by")
+    private String[] likedBy;
+
+    // These don't exist in post_comments.
+    // We populate them from the users table in Java.
+    @Transient
+    private String userName;
+
+    @Transient
+    private String userPhoto;
+
+    @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();

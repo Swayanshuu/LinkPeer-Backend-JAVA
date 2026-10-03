@@ -5,11 +5,16 @@ import com.swynx.linkpeer_backend.comment.dto.response.CommentResponse;
 import com.swynx.linkpeer_backend.comment.entity.Comment;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+
 @Component
 public class CommentMapper {
 
     // Convert Comment entity → CommentResponse
-    public CommentResponse toResponse(Comment comment) {
+    public CommentResponse toResponse(
+            Comment comment,
+            String currentUserId
+    ) {
 
         CommentResponse response = new CommentResponse();
 
@@ -19,6 +24,19 @@ public class CommentMapper {
         response.setContent(comment.getContent());
         response.setCreatedAt(comment.getCreatedAt());
         response.setUpdatedAt(comment.getUpdatedAt());
+
+        // Total likes
+        response.setLikeCount(comment.getLikesCount());
+
+        // Check whether current user liked this comment
+        boolean likedByCurrentUser = false;
+
+        if (currentUserId != null && comment.getLikedBy() != null) {
+            likedByCurrentUser = Arrays.asList(comment.getLikedBy())
+                    .contains(currentUserId);
+        }
+
+        response.setLikedByCurrentUser(likedByCurrentUser);
 
         return response;
     }

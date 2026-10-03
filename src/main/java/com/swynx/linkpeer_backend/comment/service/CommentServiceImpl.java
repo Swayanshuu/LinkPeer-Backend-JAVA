@@ -10,6 +10,8 @@ import com.swynx.linkpeer_backend.user.exception.UnauthorizedException;
 import com.swynx.linkpeer_backend.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -85,5 +87,72 @@ public class CommentServiceImpl implements CommentService {
 
         // Delete the comment
         commentRepository.delete(comment);
+    }
+
+    @Override
+    public void likeComment(String userId, Long commentsId) {
+        Comment comment = commentRepository.findById(commentsId).orElseThrow(() -> new ResourceNotFoundException("Comment not found"));
+
+        // get list if liked user
+        String[] likedBy = comment.getLikedBy();
+
+        // check if current user like the comment?
+        if (likedBy != null) {
+            for (String id : likedBy) {
+                if (id.equals(userId)) return;
+            }
+        }
+
+        // add the user to likedBy
+        List<String> users = likedBy == null
+                ? new ArrayList<>()
+                : new ArrayList<>(Arrays.asList(likedBy));
+
+        users.add(userId);
+
+        // Update liked users
+        comment.setLikedBy(users.toArray(new String[0]));
+
+        // Increase like count
+        comment.setLikesCount(comment.getLikesCount() + 1);
+
+        // Save updated comment
+        commentRepository.save(comment);
+    }
+
+    @Override
+    public void unlikeComment(String userId, Long commentsId) {
+        Comment comment = commentRepository.findById(commentsId).orElseThrow(() -> new ResourceNotFoundException("Comment not found"));
+
+        String[] likedBy = comment.getLikedBy();
+        if (likedBy != null) {
+            return;
+        }
+
+        List<String> users = new ArrayList<>(Arrays.asList(likedBy));
+        boolean removed = users.remove(userId);
+
+        if (!removed) {
+            return;
+        }
+
+        comment.setLikedBy(users.toArray(new String[0]));
+        comment.setLikesCount(comment.getLikesCount() - 1);
+        commentRepository.save(comment);
+    }
+
+    @Override
+    public boolean hasUserLikedTheComment(String userId, Long commentsId) {
+        Comment comment = commentRepository.findById(commentsId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Comment not found"));
+
+        String[] likedBy = comment.getLikedBy();
+
+        if (likedBy == null) {
+            return false;
+        }
+
+        return Arrays.asList(likedBy).contains(userId);
     }
 }

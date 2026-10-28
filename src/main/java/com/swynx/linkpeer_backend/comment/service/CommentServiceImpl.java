@@ -3,6 +3,7 @@ package com.swynx.linkpeer_backend.comment.service;
 import com.swynx.linkpeer_backend.comment.entity.Comment;
 import com.swynx.linkpeer_backend.comment.repository.CommentRepository;
 import com.swynx.linkpeer_backend.common.exception.ResourceNotFoundException;
+import com.swynx.linkpeer_backend.notifications.service.NotificationService;
 import com.swynx.linkpeer_backend.post.entity.Post;
 import com.swynx.linkpeer_backend.post.repository.PostRepository;
 import com.swynx.linkpeer_backend.user.entity.User;
@@ -19,11 +20,13 @@ public class CommentServiceImpl implements CommentService {
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
     private final PostRepository postRepository;
+    private final NotificationService notificationService;
 
-    public CommentServiceImpl(CommentRepository commentRepository, UserRepository userRepository, PostRepository postRepository) {
+    public CommentServiceImpl(CommentRepository commentRepository, UserRepository userRepository, PostRepository postRepository, NotificationService notificationService) {
         this.commentRepository = commentRepository;
         this.userRepository = userRepository;
         this.postRepository = postRepository;
+        this.notificationService = notificationService;
     }
 
     @Override
@@ -45,7 +48,22 @@ public class CommentServiceImpl implements CommentService {
         comment.setUserPhoto(user.getPhotoUrl());
 
         // Save the comment in the database
-        return commentRepository.save(comment);
+        Comment savedComment = commentRepository.save(comment);
+
+        // Notify the post owner, but not when commenting on their own post
+        if (!post.getUserId().equals(userId)) {
+            notificationService.createNotification(
+                    post.getUserId(),
+                    userId,
+                    postId,
+                    savedComment.getId(),
+                    "COMMENT",
+                    "New comment",
+                    user.getName() + " commented on your post"
+            );
+        }
+
+        return savedComment;
     }
 
     @Override
@@ -118,6 +136,24 @@ public class CommentServiceImpl implements CommentService {
 
         // Save updated comment
         commentRepository.save(comment);
+
+        // Don't notify users about likes on their own comments
+        if (!comment.getUserId().equals(userId)) {
+
+            User actor = userRepository.findById(userId)
+                    .orElseThrow(() ->
+                            new ResourceNotFoundException("User not found"));
+
+            notificationService.createNotification(
+                    comment.getUserId(),
+                    userId,
+                    comment.getPostId(),
+                    comment.getId(),
+                    "COMMENT_LIKE",
+                    "New comment like",
+                    actor.getName() + " liked your comment"
+            );
+        }
     }
 
     @Override
@@ -125,19 +161,20 @@ public class CommentServiceImpl implements CommentService {
         Comment comment = commentRepository.findById(commentsId).orElseThrow(() -> new ResourceNotFoundException("Comment not found"));
 
         String[] likedBy = comment.getLikedBy();
-        if (likedBy != null) {
+        if (likedBy != null || likedBy.length == 0) {
             return;
         }
 
         List<String> users = new ArrayList<>(Arrays.asList(likedBy));
-        boolean removed = users.remove(userId);
 
-        if (!removed) {
+        // Remove the user; do nothing if they haven't liked it
+        if (!users.remove(userId)) {
             return;
         }
 
         comment.setLikedBy(users.toArray(new String[0]));
-        comment.setLikesCount(comment.getLikesCount() - 1);
+        comment.setLikesCount(Math.max(0, comment.getLikesCount() - 1));
+
         commentRepository.save(comment);
     }
 

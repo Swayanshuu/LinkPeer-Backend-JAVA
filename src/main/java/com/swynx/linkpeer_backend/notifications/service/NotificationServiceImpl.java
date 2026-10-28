@@ -61,4 +61,19 @@ public class NotificationServiceImpl implements NotificationService {
 
         notificationRepository.saveAll(notifications);
     }
+
+    @Override
+    public Notification createNotification(String userId, String actorUserId, Long postId, Long commentId, String type, String title, String body) {
+        Notification notification = new Notification();
+
+        notification.setUserId(userId);
+        notification.setActorUserId(actorUserId);
+        notification.setPostId(postId);
+        notification.setCommentId(commentId);
+        notification.setTitle(title);
+        notification.setBody(body);
+        notification.setType(type);
+        notification.setRead(false);
+        return notificationRepository.save(notification);
+    }
 }

@@ -13,4 +13,14 @@ public interface NotificationService {
     void markAsRead(String userId, java.util.UUID notificationId);
 
     void markAllAsRead(String userId);
+
+    Notification createNotification(
+            String userId,
+            String actorUserId,
+            Long postId,
+            Long commentId,
+            String type,
+            String title,
+            String body
+    );
 }

@@ -1,10 +1,9 @@
 package com.swynx.linkpeer_backend.notifications.service;
 
 import com.swynx.linkpeer_backend.common.exception.ResourceNotFoundException;
+import com.swynx.linkpeer_backend.notifications.entity.Notification;
 import com.swynx.linkpeer_backend.notifications.repository.NotificationRepository;
-import com.swynx.linkpeer_backend.notifications.service.NotificationService;
 import org.springframework.stereotype.Service;
-import com.swynx.linkpeer_backend.notification.entity.Notification;
 
 import java.util.List;
 import java.util.UUID;

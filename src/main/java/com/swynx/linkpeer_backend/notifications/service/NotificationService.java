@@ -1,6 +1,7 @@
 package com.swynx.linkpeer_backend.notifications.service;
 
-import com.swynx.linkpeer_backend.notification.entity.Notification;
+
+import com.swynx.linkpeer_backend.notifications.entity.Notification;
 
 import java.util.List;
 

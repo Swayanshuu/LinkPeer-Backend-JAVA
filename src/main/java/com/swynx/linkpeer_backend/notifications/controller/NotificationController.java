@@ -3,10 +3,10 @@ package com.swynx.linkpeer_backend.notifications.controller;
 import com.google.firebase.auth.FirebaseToken;
 import com.swynx.linkpeer_backend.notifications.dto.response.NotificationResponse;
 import com.swynx.linkpeer_backend.notifications.dto.response.UnreadCountResponse;
+import com.swynx.linkpeer_backend.notifications.entity.Notification;
 import com.swynx.linkpeer_backend.notifications.mapper.NotificationMapper;
 import com.swynx.linkpeer_backend.notifications.service.NotificationService;
 import jakarta.servlet.http.HttpServletRequest;
-import com.swynx.linkpeer_backend.notification.entity.Notification;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

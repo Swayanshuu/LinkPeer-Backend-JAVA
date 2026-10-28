@@ -1,7 +1,7 @@
 package com.swynx.linkpeer_backend.notifications.mapper;
 
-import com.swynx.linkpeer_backend.notification.entity.Notification;
 import com.swynx.linkpeer_backend.notifications.dto.response.NotificationResponse;
+import com.swynx.linkpeer_backend.notifications.entity.Notification;
 import org.springframework.stereotype.Component;
 
 @Component

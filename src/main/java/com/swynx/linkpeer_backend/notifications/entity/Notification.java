@@ -1,4 +1,4 @@
-package com.swynx.linkpeer_backend.notification.entity;
+package com.swynx.linkpeer_backend.notifications.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;

@@ -114,7 +114,7 @@ public class CommentServiceImpl implements CommentService {
         // get list if liked user
         String[] likedBy = comment.getLikedBy();
 
-        // check if current user like the comment?
+        // check if current user like the comment
         if (likedBy != null) {
             for (String id : likedBy) {
                 if (id.equals(userId)) return;

@@ -20,22 +20,6 @@ public class ExploreFeedController {
         this.exploreFeedService = exploreFeedService;
     }
 
-    @GetMapping
-    public Page<PostSearchResponse> getExploreFeed(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
-        if (page < 0 || size < 1 || size > 50) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Page must be >= 0 and size must be between 1 and 50"
-            );
-        }
-
-        Pageable pageable = PageRequest.of(page, size);
-        return exploreFeedService.getExploreFeed(pageable);
-    }
-
 
     @GetMapping
     public Page<PostSearchResponse> getExploreFeed(

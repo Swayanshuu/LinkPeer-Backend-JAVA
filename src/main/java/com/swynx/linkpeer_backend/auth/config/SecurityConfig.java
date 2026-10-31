@@ -37,8 +37,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
 
                         // public end points
-                        .requestMatchers(HttpMethod.GET, "/posts","/posts/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/search/**","/explore").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/posts", "/posts/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/search/**", "/explore").permitAll()
+                        .requestMatchers("/swagger-ui/**","/api-docs","/v3/api-docs/**").permitAll()
 
                         // Authenticates User endpoints
                         .requestMatchers("/users/me").authenticated()

@@ -39,7 +39,13 @@ public class SecurityConfig {
                         // public end points
                         .requestMatchers(HttpMethod.GET, "/posts", "/posts/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/search/**", "/explore").permitAll()
-                        .requestMatchers("/swagger-ui/**","/api-docs","/v3/api-docs/**").permitAll()
+                        .requestMatchers(
+                                "/api-docs",
+                                "/api-docs.html",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/v3/api-docs/**"
+                        ).permitAll()
 
                         // Authenticates User endpoints
                         .requestMatchers("/users/me").authenticated()

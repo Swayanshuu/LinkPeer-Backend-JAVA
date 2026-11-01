@@ -11,6 +11,7 @@ import com.swynx.linkpeer_backend.post.exception.InvalidPaginationException;
 import com.swynx.linkpeer_backend.post.mapper.PostMapper;
 import com.swynx.linkpeer_backend.post.service.PostService;
 import com.swynx.linkpeer_backend.user.exception.UnauthorizedException;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -55,6 +56,7 @@ public class PostController {
 
 
     // get all post
+    @Operation(security = {})
     @GetMapping
     public ResponseEntity<PostPageResponse> getAllPosts(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "6") int size, HttpServletRequest httpRequest) {
 

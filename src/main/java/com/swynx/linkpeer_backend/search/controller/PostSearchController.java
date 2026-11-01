@@ -4,6 +4,7 @@ package com.swynx.linkpeer_backend.search.controller;
 import com.swynx.linkpeer_backend.post.entity.Post;
 import com.swynx.linkpeer_backend.search.dto.response.PostSearchResponse;
 import com.swynx.linkpeer_backend.search.service.PostSearchService;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,6 +22,7 @@ public class PostSearchController {
         this.postSearchService = postSearchService;
     }
 
+    @Operation(security = {})
     @GetMapping("/posts")
     public Page<PostSearchResponse> searchPosts(
             @RequestParam String content,

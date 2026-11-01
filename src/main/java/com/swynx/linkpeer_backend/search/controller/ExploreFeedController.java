@@ -3,6 +3,7 @@ package com.swynx.linkpeer_backend.search.controller;
 
 import com.swynx.linkpeer_backend.search.dto.response.PostSearchResponse;
 import com.swynx.linkpeer_backend.search.service.ExploreFeedService;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,6 +22,7 @@ public class ExploreFeedController {
     }
 
 
+    @Operation(security = {})
     @GetMapping
     public Page<PostSearchResponse> getExploreFeed(
             @RequestParam(required = false) String postType,

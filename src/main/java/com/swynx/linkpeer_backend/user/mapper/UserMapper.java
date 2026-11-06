@@ -20,6 +20,20 @@ public class UserMapper {
                 .userType(user.getUserType())
                 .graduatingYear(user.getGraduatingYear())
                 .profileCompleted(user.getProfileCompleted())
+                .college(user.getCollege())
+                .stream(user.getStream())
+                .designation(user.getDesignation())
+                .phone(user.getPhone())
+                .github(user.getGithub())
+                .link2(user.getLink2())
+                .description(user.getDescription())
+                .isVerified(user.getVerified())
+                .facultyVerified(user.getFacultyVerified())
+                .facultyVerificationImage(user.getFacultyVerificationImage())
+                .subscriptionPlan(user.getSubscriptionPlan())
+                .subscriptionStatus(user.getSubscriptionStatus())
+                .createdAt(user.getCreatedAt())
+                .lastLogin(user.getLastLogin())
                 .build();
     }
 

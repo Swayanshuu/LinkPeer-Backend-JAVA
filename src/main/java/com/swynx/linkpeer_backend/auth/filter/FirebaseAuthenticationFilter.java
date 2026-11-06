@@ -47,7 +47,7 @@ public class FirebaseAuthenticationFilter extends OncePerRequestFilter {
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            request.setAttribute("firebaseToken", firebaseToken);
+            request.setAttribute("firebaseUser", firebaseToken);
             filterChain.doFilter(request, response);
         } catch (Exception e) {
             SecurityContextHolder.clearContext();

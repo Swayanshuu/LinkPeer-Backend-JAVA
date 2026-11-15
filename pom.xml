@@ -118,6 +118,11 @@
 			<version>3.2.0</version>
 		</dependency>
 
+		<dependency>
+			<groupId>dev.swynx</groupId>
+			<artifactId>eventdock-starter</artifactId>
+			<version>0.1.2</version>
+		</dependency>
 
 	</dependencies>
 
